@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lojinha</title>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+let nome = document.getElementById("codigo".value)
+let tabela = document.getElementById("tabela").innerHTML = "table"
+$(document).ready(function(){
+	window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+	var request, db;
+	if(!window.indexedDB)
+	{
+		console.log("Seu navegador não suporta o recurso HTML5 IndexedDB");
+	}
+	else
+	{
+		request = window.indexedDB.open("Teste", 2);
+		request.onerror = function(event){
+			console.log("Erro ao abrir o banco de dados", event);
+		}
+	
+		request.onupgradeneeded = function(event){
+			console.log("Atualizando");
+			db = event.target.result;
+			var objectStore = db.createObjectStore("estudantes", { keyPath : "codigo" });
+		};
+		request.onsuccess = function(event){
+			console.log("Banco de dados aberto com sucesso");
+			db = event.target.result;
+		}
+	}
+	$("#addBtn").click(function(){
+		var produto = $("#produto").val();
+		var codigo = $("#codigo").val();
+		var transaction = db.transaction(["estudantes"],"readwrite");
+		transaction.oncomplete = function(event) {
+			console.log("Sucesso :)");
+			$("#table").html("Adicionado com Sucesso");
+		};
+		transaction.onerror = function(event) {
+			console.log("Erro :(");
+			$("#table").html("Erro ao Adicionar");
+		};
+		var objectStore = transaction.objectStore("estudantes");
+		objectStore.add({codigo: codigo, nome: nome});
+	});
+	
+	$("#removeBtn").click(function(){
+		var codigo = $("#codigo").val();
+		db.transaction(["estudantes"],"readwrite").objectStore("estudantes").delete(codigo);
+        transaction.oncomplete = function(event){
+			$("#table").html("Removido");
+		};	
+	});s
+});
+</script>
+</head>
+<body>
+<form>
+<table border="0" width="100%">
+	<tr>
+		<td colspan="3"><b><font size="5" color="black">Minha lojinha.com</font></b></td>
+	</tr>
+	<tr>
+		<td colspan="3"><hr></td>
+	</tr>
+	<tr>
+		<td width="12%">Codigo</td>
+		<td colspan="2"> <input type="text" name="codigo" id="codigo"/></td>
+	</tr>
+	<tr>
+		<td width="12%">Produto</td>
+		<td colspan="2">  <input type="text" name="nome" id="produto" /></td>
+    </tr>
+    <tr>
+		<td width="12%">Quantidade</td>
+		<td colspan="2">  <input type="text" name="nome" id="nome" /></td>
+	</tr>
+	<tr>
+		<td width="12%">&nbsp;</td>
+		<td>
+            <input type="button" name="addBtn" value="Adicionar" id="addBtn"/>
+            
+			<input type="button" name="removeBtn" value="Deletar" id="removeBtn"/>
+		<td width="3%">&nbsp;</td>
+	</tr>
+</table>
+</form>
+<div id="table"></div>
+</body>
+</html>

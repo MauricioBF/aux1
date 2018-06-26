@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IndexedDB</title>
+<script>
+let indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+let open, db, request;
+
+
+
+
+// Create the schema
+open.onupgradeneeded = function() {
+    let db = open.result;
+    let store = db.createObjectStore("Venda", {keyPath: "codigo"});
+    let index = store.createIndex("ProdutoIndex", ["produto", "quantidade"]);
+};
+open.onsuccess = function() {
+    // Start a new transaction
+    let db = open.result;
+    let tx = db.transaction("Venda", "readwrite");
+    let store = tx.objectStore("Venda");
+    let index = store.index("ProdutoIndex");
+
+    // Add some data
+    
+    // Query the data
+    let getbanana = store.get(12345);
+    let getmanga = index.get(["5", "manga"]);
+
+    getbanana.onsuccess = function() {
+        console.log(getbanana.result.produto);  // => "banana"
+    };
+
+    getmanga.onsuccess = function() {
+        console.log(getmanga.result.produto);   // => "manga"
+    };
+
+    // Close the db when the transaction is done
+    tx.oncomplete = function() {
+        db.close();
+    };
+}
+</script>
+</head>
+<body>
+    <form>
+        <table border="0" width="100%">
+            <tr>
+                <td colspan="3"><b><font size="5" color="black">Minha lojinha.com</font></b></td>
+            </tr>
+            <tr>
+                <td colspan="3"><hr></td>
+            </tr>
+            <tr>
+                <td width="12%">Codigo</td>
+                <td colspan="2"> <input type="text" name="codigo" id="codigo"/></td>
+            </tr>
+            <tr>
+                <td width="12%">Produto</td>
+                <td colspan="2">  <input type="text" name="nome" id="produto" /></td>
+            </tr>
+            <tr>
+                <td width="12%">Quantidade</td>
+                <td colspan="2">  <input type="text" name="nome" id="nome" /></td>
+            </tr>
+            <tr>
+                <td width="12%">&nbsp;</td>
+                <td>
+                    <input type="button" name="addBtn" value="Adicionar" id="addBtn"/>
+                    <div codigo="result"></div>
+                <td width="3%">&nbsp;</td></td>
+            </tr>
+            <tr>
+                <td width="12%">&nbsp;</td>
+                <td>
+                    <input type="button" name="removeBtn" value="Deletar" id="removeBtn"/>
+                <td width="3%">&nbsp;</td></td>
+            </tr>
+        </table>
+        </form>
+</body>
+</html>
